@@ -15,21 +15,24 @@ public class AnimatorEventComponent : MonoBehaviour
     /// </summary>
     public void PlayForward(string _clipName, int offset = 0, float speed = 1)
     {
-        ani.speed = 1;
+        gameObject.SetActive(true);
+        ani.speed = speed;
         clipName = _clipName;
         float timeLength = 0;
         float timePoint = 0;
         //速率
         System.Array.FindIndex(ani.runtimeAnimatorController.animationClips, (ac) =>
         {
+            //Debug.LogError(ac.name+"   "+clipName+"   "+offset);
             if (ac.name == clipName)
             {
                 timeLength = ac.length;
-                timePoint= offset/ac.frameRate;
+                timePoint= offset/ (timeLength*ac.frameRate);
                 return true;
             }
             return false;
-        });        
+        });
+       // Debug.LogError(timePoint+" "+clipName);
         ani.Play(clipName,0,timePoint);             
     }
     /// <summary>
@@ -144,7 +147,7 @@ public class AnimatorEventComponent : MonoBehaviour
     {       
         //Animation ani = GetComponent<Animation>();
         AnimationClip clip = GetClip(clipName);
-        Debug.Log("事件个数： " + clip.events.Length);
+        //Debug.Log("事件个数： " + clip.events.Length);
         float time = frame /clip.frameRate;
         for (int i = 0; i < clip.events.Length; i++)
         {
@@ -153,7 +156,7 @@ public class AnimatorEventComponent : MonoBehaviour
                 ArrayList arr = new ArrayList(clip.events);
                 arr.RemoveAt(i);
                 clip.events=(AnimationEvent[])arr.ToArray(typeof(AnimationEvent));
-                Debug.Log("事件个数(移除后)： " + clip.events.Length);
+                //Debug.Log("事件个数(移除后)： " + clip.events.Length);
                 break;
             }
         }
@@ -171,7 +174,7 @@ public class AnimatorEventComponent : MonoBehaviour
         {
             for (int j = 0; j < acp[i].events.Length; j++)
             {
-                acp[i].events.SetValue(null, i);
+                acp[i].events[j] = null;
             }
             acp[i].events = null;
         }    
