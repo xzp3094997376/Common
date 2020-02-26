@@ -4,7 +4,7 @@ public class AnimationEventComponent : MonoBehaviour
 {
     Animation ani;
     string clipName;
-    private void Awake()
+    private void Start()
     {
         ani = GetComponent<Animation>();
     }
@@ -13,11 +13,6 @@ public class AnimationEventComponent : MonoBehaviour
     /// </summary>
     public void PlayForward(string _clipName,int offset=0,float speed=1)
     {
-        gameObject?.SetActive(true);
-        if (ani==null)
-        {
-            ani = GetComponent<Animation>();
-        }       
         clipName = _clipName;
         //速率
         AnimationState state=ani[clipName];
@@ -39,15 +34,12 @@ public class AnimationEventComponent : MonoBehaviour
     {
         ParaObj para = ScriptableObject.CreateInstance<ParaObj>();
         para.action = action;
-        if (ani == null)
-        {
-            ani = GetComponent<Animation>();
-        }
+
         //Animation ani = GetComponent<Animation>();
         AnimationClip clip = ani.GetClip(clipName);
 
         AnimationEvent ae = new AnimationEvent();
-        ae.time = frame / ani.clip.frameRate;
+        ae.time = frame /clip.frameRate;
         ae.functionName = "Callback";
         ae.objectReferenceParameter = para;
         clip.AddEvent(ae);
@@ -58,7 +50,7 @@ public class AnimationEventComponent : MonoBehaviour
     {
         // Debug.Log("animation event call  " + obj.GetType() + "   " + obj.name);
         (obj as ParaObj).action();
-        //(obj as ParaObj).action = null;
+        (obj as ParaObj).action = null;
     }
 
     /// <summary>
