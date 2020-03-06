@@ -50,7 +50,7 @@ public class AnimationEventComponent : MonoBehaviour
     {
         // Debug.Log("animation event call  " + obj.GetType() + "   " + obj.name);
         (obj as ParaObj).action();
-        (obj as ParaObj).action = null;
+        //(obj as ParaObj).action = null;
     }
 
     /// <summary>

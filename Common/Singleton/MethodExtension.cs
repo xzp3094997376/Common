@@ -110,15 +110,23 @@ namespace MyFrameWork
             t.transform.localScale = ts.scale;
             return t.transform;
         }
-        public static void DoTransfrom(this Transform tr, float time, TransfromStruct tarTransfromInfor, System.Action action)
+        public static void DoTransfrom(this Transform tt, float time, TransfromStruct tarTransfromInfor, System.Action action)
         {
-            tr.DOLocalMove(tarTransfromInfor.pos, time).onComplete = () =>
+            tt.DOLocalMove(tarTransfromInfor.pos, time).onComplete = () =>
             {
                 action?.Invoke();
                 action = null;
             }; ;
-            tr.DORotateQuaternion(tarTransfromInfor.rotation, time);
-            tr.DOScale(tarTransfromInfor.scale, time);
+            tt.DORotateQuaternion(tarTransfromInfor.rotation, time);
+            tt.DOScale(tarTransfromInfor.scale, time);
+        }
+        public static GameObject InitObj(this GameObject go, Transform par, Vector3 pos, Vector3 eular, Vector3 scale)
+        {
+            go.transform.SetParent(par);
+            go.transform.localPosition = pos;
+            go.transform.localRotation = Quaternion.Euler(Vector3.zero);
+            go.transform.localScale = Vector3.one;
+            return go;
         }
 
     }
