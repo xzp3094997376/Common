@@ -23,19 +23,7 @@ public class EditorUtils : Editor {
         }
     }
 
-    [MenuItem("Assets/动态加载模型")]
-    public static void LoadPreviewModel()
-    {
-        GameObject select = Selection.activeGameObject;
-        if (select == null)
-        {
-            Debug.LogError("请选择标准命名的预制体！");
-            return;
-        }
-
-        Common._instance.ModelPreviewBack();
-        MobileMutualControl.instance.StartModelPreview(select.name);
-    }
+    
 
     [MenuItem("Tools/删除预制体丢失脚本")]
     public static void CleanupMissingScript()
@@ -72,28 +60,32 @@ public class EditorUtils : Editor {
 
     }
 
-    [MenuItem("Tools/删除预制体Mono脚本")]
+
+    [MenuItem("GameObject/删除预制体Mono脚本",priority = -20)]
     public static void CleanupMomoScript()
     {
         GameObject select = Selection.activeGameObject;
         if (select == null)
         {
+            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(select);
             Debug.LogError("异常");
             return;
         }
+#if UNITY_2018
+      
         int r;
         int j;
         Transform[] list = select.GetComponentsInChildren<Transform>(true);
         for (int i = 0; i < list.Length; i++)
-        {            
+        {
             if (list[i].gameObject.hideFlags == HideFlags.None)//HideFlags.None 获取Hierarchy面板所有Object
             {
                 var components = list[i].gameObject.GetComponents<Component>();
-                var serializedObject = new SerializedObject(list[i].gameObject);
+                var serializedObject = new SerializedObject(list[i].gameObject  );
                 var prop = serializedObject.FindProperty("m_Component");
                 r = 0;
                 for (j = 0; j < components.Length; j++)
-                {                  
+                {
                     if (components[j] is MonoBehaviour)
                     {
                         prop.DeleteArrayElementAtIndex(j - r);
@@ -103,11 +95,38 @@ public class EditorUtils : Editor {
                 serializedObject.ApplyModifiedProperties();
             }
         }
+#else
+        MonoBehaviour[] list = select.GetComponentsInChildren<MonoBehaviour>(true);
+        foreach (var item in list)
+        {
+            if (item is UnityEngine.EventSystems.UIBehaviour)
+            {
+                continue;
+            }
+            DestroyImmediate(item);
+            Debug.Log(item.GetType().Name);
+        }
+
+        string assetPath = AssetDatabase.GetAssetPath(select);
+        assetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(select);
+        Debug.Log(assetPath);
+        //bool suc;
+        PrefabUtility.prefabInstanceUpdated = (go) =>
+        {
+            Debug.Log("预制体更新: " + go.name);
+        };
+
+        PrefabUtility.ApplyObjectOverride(select, assetPath, InteractionMode.UserAction);
+        PrefabUtility.ApplyPrefabInstance(select, InteractionMode.UserAction);
+        PrefabUtility.SavePrefabAsset(select);
+        AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
+
+#endif
         Debug.Log("CleanupMissingScript : " + select.name);
 
     }
-
-
+        
 
     [MenuItem("GameObject/添加符号节点", false, 0)]
     public static void ModelFlashPlayEditor()
